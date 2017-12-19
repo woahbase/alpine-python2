@@ -58,7 +58,8 @@ architecture, e.g for an x86_64 machine..
 # make
 docker run --rm -it \
   --name docker_python2 --hostname python2 \
-  woahbase/alpine-python2:x86_64
+  woahbase/alpine-python2:x86_64 \
+  bash
 
 # make stop
 docker stop -t 2 docker_python2
