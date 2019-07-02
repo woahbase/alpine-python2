@@ -1,8 +1,6 @@
-ARG ARCH=frommakefile
 ARG DOCKERSRC=frommakefile
-ARG USERNAME=frommakefile
 #
-FROM ${USERNAME}/${DOCKERSRC}:${ARCH}
+FROM ${DOCKERSRC}
 #
 ARG PUID=1000
 ARG PGID=1000
@@ -10,14 +8,13 @@ ARG PGID=1000
 RUN addgroup -g ${PGID} -S alpine && \
     adduser -u ${PUID} -G alpine -h /home/alpine -D alpine
 RUN set -xe \
-    && apk add --no-cache --purge -uU python2 python2-dev py-setuptools py-virtualenv \
-    && if [[ ! -e /usr/bin/python ]];        then ln -sf /usr/bin/python2.7 /usr/bin/python; fi \
-    && if [[ ! -e /usr/bin/python-config ]]; then ln -sf /usr/bin/python2.7-config /usr/bin/python-config; fi \
-    && if [[ ! -e /usr/bin/easy_install ]];  then ln -sf /usr/bin/easy_install-2.7 /usr/bin/easy_install; fi \
-    # Install and upgrade Pip
-    && easy_install pip \
-    && pip install --upgrade pip \
-    && if [[ ! -e /usr/bin/pip ]]; then ln -sf /usr/bin/pip2.7 /usr/bin/pip; fi; \
-    rm -rf /var/cache/apk/* /tmp/*
+    && apk add --no-cache --purge -uU python2 python2-dev \
+    && if [[ ! -e /usr/bin/python ]]; then ln -sf $(which python2) /usr/bin/python; fi \
+# Install and upgrade Pip
+    && python2 -m 'ensurepip' \
+    && pip install --no-cache --upgrade pip setuptools wheel virtualenv \
+    && if [[ ! -e /usr/bin/pip ]]; then ln -sf $(which pip2) /usr/bin/pip; fi \
+    && apk del python2-dev \
+    && rm -rf /var/cache/apk/* /tmp/* /usr/lib/python*/ensurepip
 # ENTRYPOINT ["/init"]
 # ENTRYPOINT ["/usr/bin/python"]
